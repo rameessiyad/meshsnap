@@ -90,3 +90,15 @@ export async function getMe(): Promise<AuthResponse | null> {
     throw error;
   }
 }
+
+//google sign in
+export type GoogleLoginPayload = {
+  code: string;
+};
+
+export async function googleLogin(
+  payload: GoogleLoginPayload,
+): Promise<AuthResponse> {
+  const response = await apiClient.post<unknown>("/auth/google", payload);
+  return parseAuthResponse(response.data);
+}

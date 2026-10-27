@@ -35,25 +35,14 @@
   --accent-emerald: #10b981;
   --accent-electric: #04bf5b;
   --accent-lime: #04d13b;
-  --neon-gradient: linear-gradient(
-    110deg,
-    var(--accent-emerald),
-    var(--accent-electric) 48%,
-    var(--accent-lime)
-  );
-  --neon-gradient-reverse: linear-gradient(
-    110deg,
-    var(--accent-lime),
-    var(--accent-electric) 52%,
-    var(--accent-emerald)
-  );
-  --neon-focus-gradient: conic-gradient(
-    from var(--auth-border-angle),
-    var(--accent-emerald),
-    var(--accent-electric),
-    var(--accent-lime),
-    var(--accent-emerald)
-  );
+  --neon-gradient: linear-gradient(110deg,
+      var(--accent-emerald),
+      var(--accent-electric) 48%,
+      var(--accent-lime));
+  --neon-gradient-reverse: linear-gradient(110deg,
+      var(--accent-lime),
+      var(--accent-electric) 52%,
+      var(--accent-emerald));
   --shadow-neon:
     0 0 0 1px color-mix(in srgb, var(--accent-electric) 36%, transparent),
     0 8px 26px color-mix(in srgb, var(--accent-electric) 22%, transparent);
@@ -86,25 +75,11 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
+/* Lets the browser animate the glow angle smoothly (used by input focus). */
 @property --auth-border-angle {
   syntax: "<angle>";
   inherits: false;
   initial-value: 0deg;
-}
-
-@keyframes auth-input-neon {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 1px color-mix(in srgb, var(--accent-electric) 45%, transparent),
-      0 0 12px color-mix(in srgb, var(--accent-electric) 22%, transparent);
-  }
-
-  50% {
-    box-shadow:
-      0 0 0 1px color-mix(in srgb, var(--accent-lime) 68%, transparent),
-      0 0 18px color-mix(in srgb, var(--accent-lime) 34%, transparent);
-  }
 }
 
 @keyframes auth-border-rotate {
@@ -237,16 +212,12 @@
 
 .landing-grid {
   background-image:
-    linear-gradient(
-      to right,
+    linear-gradient(to right,
       color-mix(in srgb, var(--border) 48%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
+      transparent 1px),
+    linear-gradient(to bottom,
       color-mix(in srgb, var(--border) 48%, transparent) 1px,
-      transparent 1px
-    );
+      transparent 1px);
   background-size: 56px 56px;
   mask-image: linear-gradient(to bottom, black, transparent 92%);
 }
@@ -309,7 +280,7 @@
   z-index: 1;
 }
 
-.landing-button > span {
+.landing-button>span {
   position: relative;
   z-index: 2;
 }
@@ -384,11 +355,9 @@
 
 .landing-feature-card {
   animation: fade-up 550ms var(--ease-standard) both;
-  background-image: linear-gradient(
-    145deg,
-    color-mix(in srgb, var(--surface-raised) 55%, transparent),
-    transparent 58%
-  );
+  background-image: linear-gradient(145deg,
+      color-mix(in srgb, var(--surface-raised) 55%, transparent),
+      transparent 58%);
   transition:
     border-color 180ms var(--ease-standard),
     box-shadow 180ms var(--ease-standard),
@@ -436,9 +405,7 @@
 
 .landing-cube {
   animation: landing-float 7s ease-in-out infinite;
-  filter: drop-shadow(
-    0 0 25px color-mix(in srgb, var(--primary) 20%, transparent)
-  );
+  filter: drop-shadow(0 0 25px color-mix(in srgb, var(--primary) 20%, transparent));
 }
 
 .auth-google-button {
@@ -477,19 +444,15 @@
 
 .auth-brand-panel {
   background:
-    radial-gradient(
-      ellipse at 35% 45%,
+    radial-gradient(ellipse at 35% 45%,
       color-mix(in srgb, var(--primary) 12%, transparent),
-      transparent 58%
-    ),
+      transparent 58%),
     linear-gradient(145deg, var(--surface), var(--background) 72%);
 }
 
 .auth-wireframe {
   animation: auth-float 8s ease-in-out infinite;
-  filter: drop-shadow(
-    0 0 28px color-mix(in srgb, var(--primary) 30%, transparent)
-  );
+  filter: drop-shadow(0 0 28px color-mix(in srgb, var(--primary) 30%, transparent));
   transform-origin: center;
 }
 
@@ -511,9 +474,19 @@
   animation-delay: 1.2s;
 }
 
+/* --------------------------------------------------------------------------
+   Inputs: neon running-glow focus
 
-
+   The wrapper (.ui-input-control) draws a thin ring with two bright arcs that
+   slowly circle the box (::before) and a blurred copy behind it for the glow
+   (::after). Both fade in on focus and fade out on blur.
+   -------------------------------------------------------------------------- */
 .ui-input-control {
+  --glow-a: var(--accent-electric);
+  --glow-b: var(--accent-lime);
+  --glow-speed: 6s;
+  /* bigger number = slower */
+
   position: relative;
   isolation: isolate;
   border: 1px solid var(--border);
@@ -524,18 +497,64 @@
     box-shadow 180ms var(--ease-standard);
 }
 
-.ui-input-control:focus-within {
-  border-color: transparent;
-  background:
-    linear-gradient(var(--surface), var(--surface)) padding-box,
-    var(--neon-focus-gradient) border-box;
-  animation:
-    auth-input-neon 1.8s ease-in-out infinite,
-    auth-border-rotate 3s linear infinite;
+/* Invalid inputs glow red instead of green. */
+.ui-input-control:has(.ui-input-field[aria-invalid="true"]) {
+  --glow-a: var(--danger);
+  --glow-b: var(--danger);
 }
 
-.ui-input-control:focus-within .ui-input-field {
-  background-color: var(--surface);
+.ui-input-control::before,
+.ui-input-control::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 2px;
+  border-radius: var(--radius-control);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms var(--ease-standard);
+
+  /* Two bright arcs on opposite sides, chasing each other around the box. */
+  background: conic-gradient(from var(--auth-border-angle),
+      transparent 0deg,
+      var(--glow-a) 40deg,
+      var(--glow-b) 75deg,
+      transparent 125deg,
+      transparent 180deg,
+      var(--glow-a) 220deg,
+      var(--glow-b) 255deg,
+      transparent 305deg,
+      transparent 360deg);
+
+  /* Cut out the middle so only the thin ring shows. */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.ui-input-control::before {
+  z-index: 4;
+}
+
+.ui-input-control::after {
+  z-index: -1;
+  filter: blur(8px);
+}
+
+.ui-input-control:focus-within {
+  border-color: color-mix(in srgb, var(--glow-a) 45%, var(--border));
+  box-shadow: 0 0 16px -3px color-mix(in srgb, var(--glow-a) 38%, transparent);
+}
+
+.ui-input-control:focus-within::before,
+.ui-input-control:focus-within::after {
+  opacity: 1;
+  animation: auth-border-rotate var(--glow-speed) linear infinite;
 }
 
 .ui-input-control:hover:not(:focus-within) {
@@ -557,13 +576,10 @@
     background-color 180ms var(--ease-standard);
 }
 
-.ui-input-field:focus {
-  outline: none;
-}
-
+/* The glow ring is the focus indicator, so no extra outline on the field. */
+.ui-input-field:focus,
 .ui-input-field:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 3px;
+  outline: none;
 }
 
 .ui-input-label {
@@ -617,6 +633,7 @@
 }
 
 @keyframes auth-float {
+
   0%,
   100% {
     transform: translateY(0) rotate(-1deg);
@@ -634,6 +651,7 @@
 }
 
 @keyframes auth-pulse {
+
   0%,
   100% {
     opacity: 0.35;
@@ -659,6 +677,7 @@
 }
 
 @keyframes landing-float {
+
   0%,
   100% {
     transform: translateY(0);

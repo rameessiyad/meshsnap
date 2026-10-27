@@ -1,8 +1,8 @@
 "use client";
 
-import { useId, useState, type InputHTMLAttributes, type ReactNode } from "react";
+import { useId, useState, type ComponentProps, type ReactNode } from "react";
 
-type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & {
+type InputProps = Omit<ComponentProps<"input">, "size"> & {
   label: ReactNode;
   error?: string;
   showPasswordToggle?: boolean;

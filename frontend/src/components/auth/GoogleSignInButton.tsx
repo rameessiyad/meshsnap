@@ -1,32 +1,95 @@
-export default function GoogleSignInButton() {
+"use client";
+
+import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
+import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { FcGoogle } from "react-icons/fc";
+
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
+
+const BUTTON_CLASS =
+  "auth-google-button flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-border-strong bg-surface-raised px-5 text-sm font-medium text-foreground shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-65";
+
+type GoogleSignInButtonProps = {
+  disabled?: boolean;
+};
+
+function GoogleButton({ disabled = false }: GoogleSignInButtonProps) {
+  const router = useRouter();
+  const googleMutation = useGoogleSignIn();
+  const [clientError, setClientError] = useState<string | null>(null);
+
+  const startGoogleLogin = useGoogleLogin({
+    flow: "auth-code",
+    onSuccess: ({ code }) => {
+      setClientError(null);
+      googleMutation.mutate(
+        { code },
+        { onSuccess: () => router.replace("/dashboard") },
+      );
+    },
+    onError: () => setClientError("Google sign-in failed. Please try again."),
+    onNonOAuthError: (error) => {
+      if (error.type === "popup_failed_to_open") {
+        setClientError(
+          "Your browser blocked the Google popup. Allow popups and try again.",
+        );
+      } else {
+        // The user closed the popup: nothing to report.
+        setClientError(null);
+      }
+    },
+  });
+
+  const busy = googleMutation.isPending || googleMutation.isSuccess;
+  const message = clientError ?? googleMutation.error?.message ?? null;
+
   return (
-    <button
-      type="button"
-      className="auth-google-button flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-border-strong bg-surface-raised px-5 text-sm font-medium text-foreground shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-    >
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 24 24"
-        className="size-5 shrink-0"
+    <div>
+      <button
+        type="button"
+        onClick={() => {
+          setClientError(null);
+          googleMutation.reset();
+          startGoogleLogin();
+        }}
+        disabled={disabled || busy}
+        className={BUTTON_CLASS}
       >
-        <path
-          fill="#4285F4"
-          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.31v2.77h3.57c2.08-1.91 3.27-4.72 3.27-8.09Z"
-        />
-        <path
-          fill="#34A853"
-          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.15v2.84A11 11 0 0 0 12 23Z"
-        />
-        <path
-          fill="#FBBC05"
-          d="M5.84 14.1A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.43.34-2.1V7.06H2.15A11 11 0 0 0 1 12c0 1.78.43 3.46 1.15 4.94l3.69-2.84Z"
-        />
-        <path
-          fill="#EA4335"
-          d="M12 5.36c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.08 14.97 1 12 1a11 11 0 0 0-9.85 6.06l3.69 2.84C6.71 7.29 9.14 5.36 12 5.36Z"
-        />
-      </svg>
-      Continue with Google
-    </button>
+        <FcGoogle aria-hidden="true" className="size-5 shrink-0" />
+        {googleMutation.isPending ? "Connecting..." : "Continue with Google"}
+      </button>
+
+      {message && (
+        <p className="ui-input-error" role="alert">
+          {message}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export default function GoogleSignInButton(props: GoogleSignInButtonProps) {
+  // Without a client ID the Google hook cannot work, so show a clear
+  // disabled state instead of a button that fails silently.
+  if (!GOOGLE_CLIENT_ID) {
+    return (
+      <div>
+        <button type="button" disabled className={BUTTON_CLASS}>
+          <FcGoogle aria-hidden="true" className="size-5 shrink-0" />
+          Continue with Google
+        </button>
+        <p className="ui-input-error" role="alert">
+          Google sign-in isn’t configured yet.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <GoogleButton {...props} />
+    </GoogleOAuthProvider>
   );
 }

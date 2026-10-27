@@ -17,7 +17,18 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
 
     # Argon2id hash only. The plain password is never stored.
-    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+        # Argon2id hash only. The plain password is never stored.
+    # NULL for accounts that only sign in with Google.
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    # Google's stable user id ("sub" claim). NULL until the user signs in
+    # with Google. Unique so one Google account maps to one MeshSnap user.
+    google_sub: Mapped[str | None] = mapped_column(
+        String(255),
+        unique=True,
+        index=True,
+        nullable=True,
+    )
 
     display_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
