@@ -1,9 +1,12 @@
 from collections.abc import Generator
 
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from app.db.session import engine
+from app.db.session import engine, get_db
+from app.main import app
+from app.services.rate_limiter import reset_all_limiters
 
 
 @pytest.fixture()
@@ -26,3 +29,19 @@ def db() -> Generator[Session, None, None]:
         session.close()
         transaction.rollback()
         connection.close()
+
+
+@pytest.fixture()
+def client(db: Session) -> Generator[TestClient, None, None]:
+    """A test client whose API calls use the rolled-back test session."""
+
+    def override_get_db() -> Generator[Session, None, None]:
+        yield db
+
+    app.dependency_overrides[get_db] = override_get_db
+    reset_all_limiters()
+    try:
+        yield TestClient(app)
+    finally:
+        app.dependency_overrides.clear()
+        reset_all_limiters()
