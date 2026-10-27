@@ -1,26 +1,221 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   MeshSnap design tokens
+   All theme colors and reusable tokens live in this file.
+
+   - Dark is the default theme (the :root values).
+   - Light theme: the <html> element gets data-theme="light".
+   - Tailwind utilities (bg-background, text-foreground, bg-primary, ...) are
+     generated from the @theme block at the bottom, so components never need
+     hard-coded colors.
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+
+  /* Surfaces */
+  --background: #080b09;
+  --surface: #0f1411;
+  --surface-raised: #161d18;
+  --border: #243028;
+  --border-strong: #35453a;
+
+  /* Text */
+  --foreground: #e9f0ea;
+  --muted-foreground: #92a096;
+
+  /* Brand: neon green */
+  --primary: #39ff88;
+  --primary-hover: #6dffa8;
+  --primary-foreground: #03120a;
+  /* text on top of a primary background */
+  --primary-text: #39ff88;
+  /* green used AS text, tuned per theme for contrast */
+  --primary-subtle: rgb(57 255 136 / 0.12);
+
+  /* Focus ring */
+  --ring: #39ff88;
+
+  /* Status */
+  --success: #39ff88;
+  --warning: #ffc83d;
+  --danger: #ff5c6c;
+  --danger-subtle: rgb(255 92 108 / 0.14);
+
+  /* Effects */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.25);
+  --shadow-glow: 0 0 0 1px rgb(57 255 136 / 0.35), 0 0 24px rgb(57 255 136 / 0.18);
+
+  /* Shape and motion */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
+[data-theme="light"] {
+  color-scheme: light;
+
+  --background: #f6f9f7;
+  --surface: #ffffff;
+  --surface-raised: #eef3ef;
+  --border: #d5dfd8;
+  --border-strong: #b8c7bd;
+
+  --foreground: #0d1710;
+  --muted-foreground: #556259;
+
+  /* Neon green is too light to read as text on white, so text uses a deeper green */
+  --primary: #17e072;
+  --primary-hover: #0fc862;
+  --primary-foreground: #03120a;
+  --primary-text: #0a7a3d;
+  --primary-subtle: rgb(10 122 61 / 0.1);
+
+  --ring: #0a7a3d;
+
+  --success: #0a7a3d;
+  --warning: #9a6700;
+  --danger: #c4283a;
+  --danger-subtle: rgb(196 40 58 / 0.1);
+
+  --shadow-card: 0 1px 2px rgb(13 23 16 / 0.06), 0 8px 24px rgb(13 23 16 / 0.08);
+  --shadow-glow: 0 0 0 1px rgb(10 122 61 / 0.3), 0 0 20px rgb(23 224 114 / 0.25);
+}
+
+/* --------------------------------------------------------------------------
+   Map the tokens to Tailwind utilities.
+   "inline" makes utilities read the variables at runtime, so switching
+   data-theme changes every color instantly without regenerating CSS.
+   -------------------------------------------------------------------------- */
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-text: var(--primary-text);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-glow: var(--shadow-glow);
+
+  /* Fonts: next/font will set --font-geist-sans and --font-geist-mono in the layout step */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "Cascadia Code", Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Restrained animations, usable as animate-fade-in and animate-fade-up */
+@theme {
+  --animate-fade-in: fade-in 240ms var(--ease-standard) both;
+  --animate-fade-up: fade-up 320ms var(--ease-standard) both;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* A reusable glow, used sparingly (primary buttons, active cards): class="glow-primary" */
+@utility glow-primary {
+  box-shadow: var(--shadow-glow);
+}
+
+/* --------------------------------------------------------------------------
+   Base styles
+   -------------------------------------------------------------------------- */
+@layer base {
+  html {
+    background-color: var(--background);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Smooth theme switching, but not on first paint */
+  body {
+    transition:
+      background-color var(--duration-base) var(--ease-standard),
+      color var(--duration-base) var(--ease-standard);
+  }
+
+  ::selection {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  /* Visible keyboard focus everywhere (accessibility) */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  /* Uploaded and generated images should never overflow their container */
+  img,
+  svg,
+  canvas {
+    max-width: 100%;
+  }
+}
+
+/* Respect the user's "reduce motion" system setting */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
