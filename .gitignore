@@ -1,0 +1,32 @@
+# ---------- Secrets and environment files ----------
+# Ignores .env, .env.local, .env.production and so on, in any folder
+# (backend/ and frontend/), but keeps the safe example files.
+.env
+.env.*
+!.env.example
+
+# ---------- Node / Next.js (frontend) ----------
+# A pattern without a leading slash matches in any folder,
+# so this covers frontend/node_modules.
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+
+# ---------- Python (backend) ----------
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---------- Local development uploads and generated models ----------
+backend/storage/
+
+# ---------- OS files ----------
+.DS_Store
+Thumbs.db
