@@ -18,6 +18,20 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Authentication API
+
+The login and registration forms send requests to the FastAPI endpoints at
+`http://localhost:8000` by default. To use a different backend origin, set
+`NEXT_PUBLIC_API_BASE_URL` in `frontend/.env.local`, for example:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+```
+
+The FastAPI `FRONTEND_ORIGIN` setting must match the frontend origin, and the
+frontend must send credentialed requests so the API session cookie is retained.
+The Google button is visual only and does not start an authentication flow.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
