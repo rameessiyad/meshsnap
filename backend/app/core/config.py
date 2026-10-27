@@ -2,7 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # backend/app/core/config.py -> parents[2] is the backend folder
@@ -35,6 +35,18 @@ class Settings(BaseSettings):
 
     # Access control
     registration_mode: Literal["open", "invite_only", "closed"] = "open"
+    # Comma-separated list of valid invite codes (used when invite_only).
+    invite_codes: str = ""
+
+    # Login rate limits. A failed login counts against both the
+    # (IP + email) pair and the IP alone.
+    login_max_attempts: int = Field(default=5, ge=1)
+    login_max_attempts_per_ip: int = Field(default=20, ge=1)
+    login_window_seconds: int = Field(default=900, ge=1)
+
+    # Registration rate limit, per IP.
+    register_max_attempts: int = Field(default=10, ge=1)
+    register_window_seconds: int = Field(default=3600, ge=1)
 
     @field_validator("secret_key")
     @classmethod
@@ -51,6 +63,21 @@ class Settings(BaseSettings):
         if not value.startswith("postgresql+psycopg://"):
             raise ValueError("DATABASE_URL must start with postgresql+psycopg://")
         return value
+
+    @model_validator(mode="after")
+    def invite_codes_required_for_invite_only(self) -> "Settings":
+        if self.registration_mode == "invite_only":
+            codes = self.invite_code_list
+            if not codes or any(len(code) < 12 for code in codes):
+                raise ValueError(
+                    "INVITE_CODES must contain at least one code of 12 or more "
+                    "characters when REGISTRATION_MODE=invite_only"
+                )
+        return self
+
+    @property
+    def invite_code_list(self) -> list[str]:
+        return [code.strip() for code in self.invite_codes.split(",") if code.strip()]
 
     @property
     def is_production(self) -> bool:
