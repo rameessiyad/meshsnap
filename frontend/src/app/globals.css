@@ -280,7 +280,7 @@
   z-index: 1;
 }
 
-.landing-button>span {
+.landing-button>* {
   position: relative;
   z-index: 2;
 }
@@ -626,6 +626,32 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: hero-gradient-flow 8s linear infinite;
+}
+
+.dashboard-welcome-name {
+  filter: drop-shadow(
+    0 0 12px color-mix(in srgb, var(--accent-electric) 48%, transparent)
+  );
+}
+
+.dashboard-nav-link {
+  transition:
+    background-color 180ms var(--ease-standard),
+    border-color 180ms var(--ease-standard),
+    box-shadow 180ms var(--ease-standard),
+    color 180ms var(--ease-standard),
+    transform 180ms var(--ease-standard);
+}
+
+.dashboard-nav-link:hover {
+  border-color: color-mix(in srgb, var(--primary) 36%, var(--border));
+  box-shadow: 0 0 16px -4px color-mix(in srgb, var(--primary) 42%, transparent);
+  color: var(--primary-text);
+}
+
+.dashboard-nav-link[aria-current="page"] {
+  box-shadow: var(--shadow-glow);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--primary) 42%, transparent);
 }
 
 .auth-panel-glow {

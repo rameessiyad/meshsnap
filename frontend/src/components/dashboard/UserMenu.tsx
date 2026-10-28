@@ -106,7 +106,7 @@ export default function UserMenu() {
             role="menuitem"
             onClick={handleSignOut}
             disabled={logout.isPending}
-            className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-danger-subtle hover:text-danger disabled:cursor-not-allowed disabled:opacity-60"
+            className="landing-outline-button mt-2 flex w-full items-center gap-2 rounded-lg border border-transparent px-3 py-2 text-sm text-foreground hover:border-danger/30 hover:bg-danger-subtle hover:text-danger disabled:cursor-not-allowed disabled:opacity-60"
           >
             <LogOut className="size-4" aria-hidden="true" />
             {logout.isPending ? "Signing out..." : "Sign out"}

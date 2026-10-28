@@ -33,7 +33,7 @@ const ModelViewer = dynamic(() => import("./ModelViewer"), {
 });
 
 const BUTTON =
-  "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-opacity disabled:cursor-not-allowed disabled:opacity-60";
+  "landing-outline-button inline-flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60";
 
 function fileSlug(name: string): string {
   return (
@@ -208,7 +208,7 @@ export default function ProjectDetail({ id }: { id: string }) {
                   type="button"
                   onClick={onUpload}
                   disabled={!file || uploadImage.isPending}
-                  className={`${BUTTON} bg-primary text-primary-foreground hover:opacity-90`}
+                  className={`${BUTTON} landing-button border-transparent disabled:opacity-60`}
                 >
                   {uploadImage.isPending && (
                     <Loader2
@@ -216,7 +216,7 @@ export default function ProjectDetail({ id }: { id: string }) {
                       aria-hidden="true"
                     />
                   )}
-                  Upload image
+                  <span>Upload image</span>
                 </button>
                 {replacing && (
                   <button
@@ -307,7 +307,7 @@ export default function ProjectDetail({ id }: { id: string }) {
                   ) : (
                     <Download className="size-4" aria-hidden="true" />
                   )}
-                  Download .glb
+                  <span>Download .glb</span>
                 </button>
               </div>
             )}
@@ -319,14 +319,16 @@ export default function ProjectDetail({ id }: { id: string }) {
                 disabled={
                   !project.has_source_image || active || generate.isPending
                 }
-                className={`${BUTTON} bg-primary text-primary-foreground hover:opacity-90`}
+                className={`${BUTTON} landing-button border-transparent disabled:opacity-60`}
               >
                 {generate.isPending && (
                   <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                 )}
-                {modelAssetId || job?.status === "failed"
-                  ? "Generate again"
-                  : "Generate 3D model"}
+                <span>
+                  {modelAssetId || job?.status === "failed"
+                    ? "Generate again"
+                    : "Generate 3D model"}
+                </span>
               </button>
               {active && (
                 <button

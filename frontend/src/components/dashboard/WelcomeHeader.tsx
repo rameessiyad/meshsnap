@@ -14,7 +14,7 @@ export default function WelcomeHeader() {
         Welcome back
         {name && (
           <>
-            , <span className="hero-neon-text break-words">{name}</span>
+            , <span className="hero-neon-text dashboard-welcome-name break-words">{name}</span>
           </>
         )}
       </h1>

@@ -21,7 +21,7 @@ import type * as THREE from "three";
 import { useModelUrl } from "@/hooks/useModelUrl";
 
 const TOOL_BUTTON =
-  "inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground aria-pressed:border-primary aria-pressed:text-primary-text";
+  "landing-outline-button inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-muted-foreground aria-pressed:border-primary aria-pressed:text-primary-text";
 
 /* A broken or unsupported file should show a message, not crash the page. */
 class ViewerErrorBoundary extends Component<

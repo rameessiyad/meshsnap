@@ -14,9 +14,6 @@ import { getErrorMessage } from "@/lib/api/errors";
 
 import ImagePicker from "./ImagePicker";
 
-const FIELD =
-  "w-full rounded-lg border border-border bg-surface-raised px-3 py-2.5 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30";
-
 export default function NewProjectForm() {
   const router = useRouter();
   const createProject = useCreateProject();
@@ -76,33 +73,37 @@ export default function NewProjectForm() {
 
       <div className="space-y-5">
         <div className="space-y-2">
-          <label htmlFor="project-name" className="text-sm font-medium">
+          <label htmlFor="project-name" className="ui-input-label">
             Project name
           </label>
-          <input
-            id="project-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            maxLength={120}
-            disabled={busy || createdId !== null}
-            placeholder="e.g. Ceramic mug"
-            className={FIELD}
-          />
+          <div className="ui-input-control h-12">
+            <input
+              id="project-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={120}
+              disabled={busy || createdId !== null}
+              placeholder="e.g. Ceramic mug"
+              className="ui-input-field h-full w-full px-4 text-sm text-foreground placeholder:text-muted-foreground/70 disabled:cursor-not-allowed disabled:opacity-60"
+            />
+          </div>
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="project-description" className="text-sm font-medium">
+          <label htmlFor="project-description" className="ui-input-label">
             Description <span className="text-muted-foreground">(optional)</span>
           </label>
-          <textarea
-            id="project-description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            maxLength={2000}
-            rows={4}
-            disabled={busy || createdId !== null}
-            className={FIELD}
-          />
+          <div className="ui-input-control min-h-28">
+            <textarea
+              id="project-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={2000}
+              rows={4}
+              disabled={busy || createdId !== null}
+              className="ui-input-field min-h-28 w-full resize-none px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 disabled:cursor-not-allowed disabled:opacity-60"
+            />
+          </div>
         </div>
 
         <label className="flex items-center gap-2.5 text-sm">
@@ -140,10 +141,12 @@ export default function NewProjectForm() {
           <button
             type="submit"
             disabled={busy}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="landing-button inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
-            {busy ? "Working…" : startNow ? "Create and generate" : "Create project"}
+            <span>
+              {busy ? "Working…" : startNow ? "Create and generate" : "Create project"}
+            </span>
           </button>
           <Link
             href="/dashboard/projects"

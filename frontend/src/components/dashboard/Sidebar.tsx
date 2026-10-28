@@ -40,7 +40,7 @@ export default function Sidebar({
             type="button"
             onClick={onClose}
             aria-label="Close navigation"
-            className="flex size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-surface-raised hover:text-foreground"
+            className="landing-outline-button flex size-9 items-center justify-center rounded-lg border border-transparent text-muted-foreground"
           >
             <X className="size-5" aria-hidden="true" />
           </button>
@@ -52,7 +52,7 @@ export default function Sidebar({
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const baseClasses =
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium";
+              "dashboard-nav-link flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-sm font-medium";
 
             if (item.disabled) {
               return (
@@ -81,7 +81,7 @@ export default function Sidebar({
                   className={`${baseClasses} ${
                     active
                       ? "bg-primary-subtle text-primary-text"
-                      : "text-muted-foreground hover:bg-surface-raised hover:text-foreground"
+                      : "text-muted-foreground"
                   }`}
                 >
                   <Icon className="size-5 shrink-0" aria-hidden="true" />

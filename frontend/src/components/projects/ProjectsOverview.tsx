@@ -18,10 +18,10 @@ export default function ProjectsOverview() {
         <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
         <Link
           href="/dashboard/projects/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          className="landing-button inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold"
         >
           <Plus className="size-4" aria-hidden="true" />
-          New project
+          <span>New project</span>
         </Link>
       </div>
 

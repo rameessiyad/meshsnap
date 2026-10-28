@@ -34,7 +34,7 @@ export default function Topbar({
         aria-label="Open navigation"
         aria-expanded={menuOpen}
         aria-controls="mobile-drawer"
-        className="flex size-10 items-center justify-center rounded-lg border border-border bg-surface text-muted-foreground hover:text-foreground lg:hidden"
+        className="landing-outline-button flex size-10 items-center justify-center rounded-lg border border-border bg-surface text-muted-foreground lg:hidden"
       >
         <Menu className="size-5" aria-hidden="true" />
       </button>

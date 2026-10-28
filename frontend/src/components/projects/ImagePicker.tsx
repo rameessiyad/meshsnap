@@ -92,7 +92,7 @@ export default function ImagePicker({
             type="button"
             disabled={disabled}
             onClick={() => inputRef.current?.click()}
-            className="flex flex-col items-center gap-2 px-6 text-center text-sm text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+            className="landing-outline-button flex flex-col items-center gap-2 rounded-xl border border-transparent px-6 py-4 text-center text-sm text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
           >
             <ImagePlus className="size-8" aria-hidden="true" />
             <span className="font-medium">Click to choose an image</span>
@@ -130,7 +130,7 @@ export default function ImagePicker({
           <button
             type="button"
             onClick={() => select(null)}
-            className="shrink-0 font-medium text-muted-foreground hover:text-foreground"
+            className="landing-outline-button shrink-0 rounded-md px-2 py-1 font-medium text-muted-foreground"
           >
             Remove
           </button>
