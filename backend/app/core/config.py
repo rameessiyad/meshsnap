@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     app_env: Literal["development", "production", "test"] = "development"
     app_name: str = "MeshSnap"
     frontend_origin: str = "http://localhost:3000"
+    # Public URL of this API. Used to build links to locally stored files.
+    backend_public_url: str = "http://localhost:8000"
 
     # Database
     database_url: str
@@ -47,6 +49,18 @@ class Settings(BaseSettings):
     # Registration rate limit, per IP.
     register_max_attempts: int = Field(default=10, ge=1)
     register_window_seconds: int = Field(default=3600, ge=1)
+
+    # File storage
+    storage_backend: Literal["local", "cloudinary"] = "local"
+    local_storage_dir: str = "storage"
+    cloudinary_cloud_name: str = ""
+    cloudinary_api_key: str = ""
+    cloudinary_api_secret: str = ""
+    max_upload_mb: int = Field(default=10, ge=1, le=50)
+
+    # 3D generation
+    generation_provider: Literal["mock", "fal"] = "mock"
+    fal_key: str = ""
 
     @field_validator("secret_key")
     @classmethod
@@ -75,9 +89,35 @@ class Settings(BaseSettings):
                 )
         return self
 
+    @model_validator(mode="after")
+    def storage_and_provider_must_be_configured(self) -> "Settings":
+        if self.storage_backend == "cloudinary" and not (
+            self.cloudinary_cloud_name
+            and self.cloudinary_api_key
+            and self.cloudinary_api_secret
+        ):
+            raise ValueError(
+                "CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET "
+                "are required when STORAGE_BACKEND=cloudinary"
+            )
+        if self.generation_provider == "fal":
+            if not self.fal_key:
+                raise ValueError("FAL_KEY is required when GENERATION_PROVIDER=fal")
+            if self.storage_backend != "cloudinary":
+                # fal.ai downloads the input image itself, so the URL must be
+                # reachable from the internet. localhost URLs are not.
+                raise ValueError(
+                    "GENERATION_PROVIDER=fal requires STORAGE_BACKEND=cloudinary"
+                )
+        return self
+
     @property
     def invite_code_list(self) -> list[str]:
         return [code.strip() for code in self.invite_codes.split(",") if code.strip()]
+
+    @property
+    def max_upload_bytes(self) -> int:
+        return self.max_upload_mb * 1024 * 1024
 
     @property
     def is_production(self) -> bool:

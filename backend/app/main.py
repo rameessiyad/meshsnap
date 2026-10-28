@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.auth import router as auth_router
 from app.api.health import router as health_router
 from app.core.config import get_settings
+from app.services.storage import local_storage_root
 
 settings = get_settings()
 
@@ -27,3 +29,9 @@ app.add_middleware(
 
 app.include_router(health_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
+
+# Locally stored uploads and models (development). File names are random UUIDs.
+if settings.storage_backend == "local":
+    _media_root = local_storage_root()
+    _media_root.mkdir(parents=True, exist_ok=True)
+    app.mount("/media", StaticFiles(directory=_media_root), name="media")
