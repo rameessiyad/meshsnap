@@ -84,6 +84,18 @@ class MockProvider(GenerationProvider):
     def __init__(self, delay_seconds: float = 4.0) -> None:
         self._delay = delay_seconds
 
+    def generate(self, image_bytes: bytes, content_type: str) -> GenerationOutput:
+        time.sleep(self._delay)
+        # provider_job_id stays None: (provider, provider_request_id) is unique in the DB.
+        return GenerationOutput(glb_bytes=build_cube_glb(), provider_job_id=None)
+    """Fake provider for development: waits a few seconds, returns a cube."""
+
+    name = "mock"
+    model_name = "mock-cube"
+
+    def __init__(self, delay_seconds: float = 4.0) -> None:
+        self._delay = delay_seconds
+
     def generate(self, image_url: str) -> GenerationOutput:
         time.sleep(self._delay)
         return GenerationOutput(glb_bytes=build_cube_glb(), provider_job_id="mock-job")

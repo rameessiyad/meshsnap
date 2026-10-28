@@ -13,9 +13,9 @@ class GenerationOutput:
 
 
 class GenerationProvider(ABC):
-    name: str  # e.g. "mock", "fal"
-    model_name: str  # e.g. "fal-ai/hunyuan3d/v2"
+    name: str  # "mock", "hf", "fal"
+    model_name: str
 
     @abstractmethod
-    def generate(self, image_url: str) -> GenerationOutput:
-        """Turn the image at image_url into a GLB model. Blocking call."""
+    def generate(self, image_bytes: bytes, content_type: str) -> GenerationOutput:
+        """Turn the image into a GLB model. Blocking call."""

@@ -59,8 +59,12 @@ class Settings(BaseSettings):
     max_upload_mb: int = Field(default=10, ge=1, le=50)
 
     # 3D generation
-    generation_provider: Literal["mock", "fal"] = "mock"
+    generation_provider: Literal["mock", "hf", "fal"] = "mock"
     fal_key: str = ""
+    hf_token: str = ""
+    hf_space_id: str = "tencent/Hunyuan3D-2"
+    # Max generations per user per UTC day (finished plus currently running).
+    daily_generation_limit: int = Field(default=10, ge=1)
 
     @field_validator("secret_key")
     @classmethod
@@ -100,15 +104,8 @@ class Settings(BaseSettings):
                 "CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET "
                 "are required when STORAGE_BACKEND=cloudinary"
             )
-        if self.generation_provider == "fal":
-            if not self.fal_key:
-                raise ValueError("FAL_KEY is required when GENERATION_PROVIDER=fal")
-            if self.storage_backend != "cloudinary":
-                # fal.ai downloads the input image itself, so the URL must be
-                # reachable from the internet. localhost URLs are not.
-                raise ValueError(
-                    "GENERATION_PROVIDER=fal requires STORAGE_BACKEND=cloudinary"
-                )
+        if self.generation_provider == "fal" and not self.fal_key:
+            raise ValueError("FAL_KEY is required when GENERATION_PROVIDER=fal")
         return self
 
     @property
