@@ -1,44 +1,51 @@
-import { CircleCheck, FolderOpen, LoaderCircle, Zap } from "lucide-react";
+"use client";
 
-import { DAILY_LIMIT, generationsToday, jobs, projects } from "./mock-data";
+import { Box, FolderOpen, Gauge, Loader } from "lucide-react";
+
+import { useProjects, useQuota } from "@/hooks/useProjects";
+import { isActiveStatus } from "@/lib/api/types";
+
 import StatCard from "./StatCard";
 
 export default function StatsGrid() {
-  const completed = projects.filter(
-    (project) => project.status === "succeeded",
-  ).length;
-  const inProgress = jobs.filter(
-    (job) => job.status === "queued" || job.status === "processing",
-  ).length;
+  const projects = useProjects();
+  const quota = useQuota();
+  const list = projects.data;
+
+  const running = list
+    ? list.filter((p) => p.latest_job && isActiveStatus(p.latest_job.status))
+        .length
+    : null;
+  const ready = list ? list.filter((p) => p.model_asset_id).length : null;
 
   return (
     <section
-      aria-label="Overview statistics"
-      className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      aria-label="Overview"
+      className="grid grid-cols-2 gap-4 lg:grid-cols-4"
     >
       <StatCard
         icon={FolderOpen}
         label="Projects"
-        value={String(projects.length)}
-        caption="Total projects"
+        value={list ? String(list.length) : "–"}
+        caption="In your account"
       />
       <StatCard
-        icon={Zap}
-        label="Generations today"
-        value={`${generationsToday} / ${DAILY_LIMIT}`}
-        caption="Daily limit (placeholder)"
+        icon={Box}
+        label="Models ready"
+        value={ready === null ? "–" : String(ready)}
+        caption="Downloadable GLB files"
       />
       <StatCard
-        icon={CircleCheck}
-        label="Completed models"
-        value={String(completed)}
-        caption="Ready to preview"
+        icon={Loader}
+        label="Generating now"
+        value={running === null ? "–" : String(running)}
+        caption="Running right now"
       />
       <StatCard
-        icon={LoaderCircle}
-        label="Processing now"
-        value={String(inProgress)}
-        caption="In queue or running"
+        icon={Gauge}
+        label="Used today"
+        value={quota.data ? `${quota.data.used} / ${quota.data.limit}` : "–"}
+        caption="Daily generation limit (UTC)"
       />
     </section>
   );

@@ -15,17 +15,11 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  {
-    label: "Projects",
-    href: "/dashboard/projects",
-    icon: FolderOpen,
-    disabled: true,
-  },
+  { label: "Projects", href: "/dashboard/projects", icon: FolderOpen },
   {
     label: "New generation",
-    href: "/dashboard/new",
+    href: "/dashboard/projects/new",
     icon: Sparkles,
-    disabled: true,
   },
   {
     label: "Settings",
@@ -35,7 +29,20 @@ export const NAV_ITEMS: NavItem[] = [
   },
 ];
 
+function matches(pathname: string, href: string): boolean {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export function isActivePath(pathname: string, href: string): boolean {
   if (href === "/dashboard") return pathname === href;
-  return pathname === href || pathname.startsWith(`${href}/`);
+  if (!matches(pathname, href)) return false;
+  // A parent item (Projects) is not active when a more specific item
+  // (New generation) matches the current page.
+  return !NAV_ITEMS.some(
+    (item) =>
+      !item.disabled &&
+      item.href !== href &&
+      item.href.startsWith(`${href}/`) &&
+      matches(pathname, item.href),
+  );
 }

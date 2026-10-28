@@ -14,6 +14,10 @@ import httpx
 
 from app.core.config import BACKEND_DIR, get_settings
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 FileKind = Literal["image", "model"]
 
 
@@ -99,6 +103,7 @@ def save_file(data: bytes, user_id: uuid.UUID, kind: FileKind, extension: str) -
             overwrite=False,
         )
     except Exception as exc:
+        logger.exception("Cloudinary upload failed")
         raise StorageError("Could not upload the file to storage") from exc
 
     return StoredFile(backend="cloudinary", key=result["public_id"])

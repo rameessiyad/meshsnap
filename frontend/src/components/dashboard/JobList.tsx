@@ -1,12 +1,26 @@
+"use client";
+
 import { Box, ListChecks } from "lucide-react";
+import Link from "next/link";
+
+import { useProjects } from "@/hooks/useProjects";
 
 import EmptyState from "./EmptyState";
-import { jobs } from "./mock-data";
+import JobStatusBadge from "./JobStatusBadge";
 import RelativeTime from "./RelativeTime";
-import StatusBadge from "./StatusBadge";
 
 export default function JobList() {
-  const recent = jobs.slice(0, 6);
+  const { data: projects } = useProjects();
+
+  // Each project's latest job, newest first.
+  const recent = (projects ?? [])
+    .filter((p) => p.latest_job)
+    .sort(
+      (a, b) =>
+        new Date(b.latest_job!.created_at).getTime() -
+        new Date(a.latest_job!.created_at).getTime(),
+    )
+    .slice(0, 6);
 
   return (
     <section aria-labelledby="recent-jobs-title">
@@ -22,26 +36,33 @@ export default function JobList() {
         />
       ) : (
         <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
-          {recent.map((job) => (
-            <li
-              key={job.id}
-              className="flex items-center gap-3 px-4 py-3 sm:px-5"
-            >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-surface-raised text-muted-foreground">
-                <Box className="size-4" aria-hidden="true" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">
-                  {job.projectName}
-                </p>
-                <p className="min-h-4 truncate text-xs text-muted-foreground">
-                  <RelativeTime iso={job.createdAt} />
-                  {job.message ? ` · ${job.message}` : ""}
-                </p>
-              </div>
-              <StatusBadge status={job.status} />
-            </li>
-          ))}
+          {recent.map((project) => {
+            const job = project.latest_job!;
+            return (
+              <li key={job.id}>
+                <Link
+                  href={`/dashboard/projects/${project.id}`}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-surface-raised sm:px-5"
+                >
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-surface-raised text-muted-foreground">
+                    <Box className="size-4" aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
+                      {project.name}
+                    </p>
+                    <p className="min-h-4 truncate text-xs text-muted-foreground">
+                      <RelativeTime iso={job.created_at} />
+                      {job.status === "failed" && job.error_message
+                        ? ` · ${job.error_message}`
+                        : ""}
+                    </p>
+                  </div>
+                  <JobStatusBadge status={job.status} />
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       )}
     </section>
