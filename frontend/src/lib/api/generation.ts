@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { Job, Quota } from "./types";
+import type { Job, ModelFormat, ModelVersion, Quota } from "./types";
 
 export async function startGeneration(
   projectId: string,
@@ -23,20 +23,31 @@ export async function getQuota(): Promise<Quota> {
   return data;
 }
 
-export async function fetchAssetBlob(assetId: string): Promise<Blob> {
+export async function listVersions(projectId: string): Promise<ModelVersion[]> {
+  const { data } = await apiClient.get<ModelVersion[]>(
+    `/projects/${projectId}/versions`,
+  );
+  return data;
+}
+
+export async function deleteVersion(assetId: string): Promise<void> {
+  await apiClient.delete(`/assets/${assetId}`);
+}
+
+export async function fetchAssetBlob(
+  assetId: string,
+  format: ModelFormat = "glb",
+): Promise<Blob> {
   const { data } = await apiClient.get<Blob>(`/assets/${assetId}/file`, {
     responseType: "blob",
     timeout: 120_000,
+    params: format === "glb" ? undefined : { format },
   });
   return data;
 }
 
-export async function downloadAsset(
-  assetId: string,
-  filename: string,
-): Promise<void> {
-  const data = await fetchAssetBlob(assetId);
-  const url = URL.createObjectURL(data);
+export function saveBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
   link.download = filename;
@@ -44,4 +55,12 @@ export async function downloadAsset(
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+}
+
+export async function downloadAsset(
+  assetId: string,
+  filename: string,
+  format: ModelFormat = "glb",
+): Promise<void> {
+  saveBlob(await fetchAssetBlob(assetId, format), filename);
 }

@@ -5,6 +5,7 @@ import JobStatusBadge from "@/components/dashboard/JobStatusBadge";
 import RelativeTime from "@/components/dashboard/RelativeTime";
 import type { Project } from "@/lib/api/types";
 
+import AssetImage from "./AssetImage";
 import ProjectImage from "./ProjectImage";
 
 export default function ProjectCard({ project }: { project: Project }) {
@@ -14,7 +15,12 @@ export default function ProjectCard({ project }: { project: Project }) {
       className="landing-feature-card group overflow-hidden rounded-2xl border border-border bg-surface shadow-card transition-colors hover:border-primary/50"
     >
       <div className="aspect-[4/3] overflow-hidden bg-surface-raised">
-        {project.has_source_image ? (
+        {project.thumbnail_asset_id ? (
+          <AssetImage
+            assetId={project.thumbnail_asset_id}
+            alt={`${project.name} 3D preview`}
+          />
+        ) : project.has_source_image ? (
           <ProjectImage projectId={project.id} alt={project.name} />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-muted-foreground">

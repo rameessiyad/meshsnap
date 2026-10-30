@@ -24,3 +24,11 @@ class QuotaPublic(BaseModel):
     used: int
     limit: int
     provider: str
+    
+class VersionPublic(BaseModel):
+    asset_id: uuid.UUID
+    job_id: uuid.UUID
+    version: int
+    is_latest: bool
+    size_bytes: int
+    created_at: datetime

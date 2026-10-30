@@ -40,10 +40,22 @@ export interface Project {
   created_at: string;
   latest_job: Job | null;
   model_asset_id: string | null;
+  thumbnail_asset_id: string | null;
 }
 
 export interface Quota {
   used: number;
   limit: number;
   provider: string;
+}
+
+export type ModelFormat = "glb" | "obj" | "stl";
+
+export interface ModelVersion {
+  asset_id: string;
+  job_id: string;
+  version: number;
+  is_latest: boolean;
+  size_bytes: number;
+  created_at: string;
 }

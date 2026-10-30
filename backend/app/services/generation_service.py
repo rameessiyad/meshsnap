@@ -65,6 +65,37 @@ def latest_model_asset(db: Session, project_id: uuid.UUID) -> GeneratedAsset | N
         .limit(1)
     )
 
+def latest_preview_asset(db: Session, project_id: uuid.UUID) -> GeneratedAsset | None:
+    return db.scalar(
+        select(GeneratedAsset)
+        .where(
+            GeneratedAsset.project_id == project_id,
+            GeneratedAsset.kind == "preview_image",
+            GeneratedAsset.deleted_at.is_(None),
+        )
+        .order_by(GeneratedAsset.created_at.desc())
+        .limit(1)
+    )
+
+
+def remove_preview_assets(db: Session, project_id: uuid.UUID) -> None:
+    """Drop the project's thumbnail(s). The viewer captures a fresh one."""
+    previews = db.scalars(
+        select(GeneratedAsset).where(
+            GeneratedAsset.project_id == project_id,
+            GeneratedAsset.kind == "preview_image",
+            GeneratedAsset.deleted_at.is_(None),
+        )
+    ).all()
+    if not previews:
+        return
+    refs = [(a.storage_backend, a.storage_key) for a in previews]
+    now = _now()
+    for asset in previews:
+        asset.deleted_at = now
+    db.commit()
+    for backend, key in refs:
+        storage.delete_file(backend, key, "image")
 
 def active_job_for_project(db: Session, project_id: uuid.UUID) -> GenerationJob | None:
     return db.scalar(
@@ -195,6 +226,11 @@ def _execute(db: Session, job: GenerationJob, project: Project | None) -> None:
         return
     content_type = project.source_image_content_type or "image/png"
 
+        # The user may have cancelled while we were submitting.
+    db.refresh(job)
+    if job.cancel_requested_at is not None:
+        return
+
     job.status = "in_progress"
     db.commit()
 
@@ -244,9 +280,12 @@ def _execute(db: Session, job: GenerationJob, project: Project | None) -> None:
     )
     if output.provider_job_id:
         job.provider_request_id = output.provider_job_id
-    job.status = "completed"
+        job.status = "completed"
+        
     job.completed_at = _now()
     db.commit()
+    # A new model makes the old thumbnail stale.
+    remove_preview_assets(db, job.project_id)
 
 
 def run_generation_job(job_id: uuid.UUID) -> None:

@@ -9,6 +9,7 @@ from fastapi import (
     File,
     Header,
     HTTPException,
+    Query,
     Response,
     UploadFile,
     status,
@@ -47,6 +48,7 @@ def get_owned_project(db: Session, project_id: uuid.UUID, user_id: uuid.UUID) ->
 def project_to_public(db: Session, project: Project) -> ProjectPublic:
     job = generation_service.latest_job(db, project.id)
     asset = generation_service.latest_model_asset(db, project.id)
+    thumb = generation_service.latest_preview_asset(db, project.id)
     return ProjectPublic(
         id=project.id,
         name=project.name,
@@ -55,6 +57,7 @@ def project_to_public(db: Session, project: Project) -> ProjectPublic:
         created_at=project.created_at,
         latest_job=JobPublic.model_validate(job) if job else None,
         model_asset_id=asset.id if asset else None,
+        thumbnail_asset_id=thumb.id if thumb else None,
     )
 
 
@@ -74,15 +77,17 @@ def create_project(
 
 @router.get("", response_model=list[ProjectPublic])
 def list_projects(
+    q: str | None = Query(default=None, max_length=100),
     ctx: AuthContext = Depends(get_auth_context),
     db: Session = Depends(get_db),
 ) -> list[ProjectPublic]:
-    projects = db.scalars(
-        select(Project)
-        .where(Project.user_id == ctx.user.id, Project.deleted_at.is_(None))
-        .order_by(Project.created_at.desc())
-        .limit(200)
-    ).all()
+    stmt = select(Project).where(
+        Project.user_id == ctx.user.id, Project.deleted_at.is_(None)
+    )
+    if q and q.strip():
+        term = q.strip().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        stmt = stmt.where(Project.name.ilike(f"%{term}%", escape="\\"))
+    projects = db.scalars(stmt.order_by(Project.created_at.desc()).limit(200)).all()
     return [project_to_public(db, p) for p in projects]
 
 

@@ -1,8 +1,10 @@
 import { apiClient } from "./client";
 import type { Project } from "./types";
 
-export async function listProjects(): Promise<Project[]> {
-  const { data } = await apiClient.get<Project[]>("/projects");
+export async function listProjects(q?: string): Promise<Project[]> {
+  const { data } = await apiClient.get<Project[]>("/projects", {
+    params: q ? { q } : undefined,
+  });
   return data;
 }
 
@@ -16,6 +18,14 @@ export async function createProject(input: {
   description?: string | null;
 }): Promise<Project> {
   const { data } = await apiClient.post<Project>("/projects", input);
+  return data;
+}
+
+export async function updateProject(
+  id: string,
+  input: { name?: string; description?: string | null },
+): Promise<Project> {
+  const { data } = await apiClient.patch<Project>(`/projects/${id}`, input);
   return data;
 }
 
@@ -35,6 +45,23 @@ export async function uploadProjectImage(
     {
       timeout: 60_000,
       // Must not be JSON, or axios would convert the FormData into JSON.
+      headers: { "Content-Type": "multipart/form-data" },
+    },
+  );
+  return data;
+}
+
+export async function uploadThumbnail(
+  id: string,
+  blob: Blob,
+): Promise<Project> {
+  const form = new FormData();
+  form.append("file", blob, "thumbnail.png");
+  const { data } = await apiClient.post<Project>(
+    `/projects/${id}/thumbnail`,
+    form,
+    {
+      timeout: 60_000,
       headers: { "Content-Type": "multipart/form-data" },
     },
   );

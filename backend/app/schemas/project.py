@@ -47,3 +47,4 @@ class ProjectPublic(BaseModel):
     latest_job: JobPublic | None
     # Download with GET /api/assets/{model_asset_id}/file
     model_asset_id: uuid.UUID | None
+    thumbnail_asset_id: uuid.UUID | None = None
