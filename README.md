@@ -117,6 +117,23 @@ meshSnap/
 - Admin view for approving invited users
 - Public deployment
 
+## Screenshots
+
+### Landing page
+![Landing page](docs/screenshots/landing.png)
+
+### Sign in
+![Sign in](docs/screenshots/login.png)
+
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Image upload
+![Image upload](docs/screenshots/image-upload.png)
+
+### 3D viewer
+![3D viewer](docs/screenshots/viewer.png)
+
 ---
 
 ## License
